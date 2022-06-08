@@ -10,7 +10,7 @@ interface User {
     name: string
 }
 
-const user: User = {
+const LUKH: User = {
     name: "lukh"
 }
 
@@ -22,7 +22,7 @@ const user: User = {
 */
 const getUserHandler: (req: Request) => TE.TaskEither<string, Response> =
     req => {
-	return TE.right(new Response(JSON.stringify(user)))
+	return TE.right(new Response(JSON.stringify(LUKH)))
     }
 
 Deno.test("handler can handle an arbitrary request", async () => {
@@ -37,7 +37,7 @@ Deno.test("handler can handle an arbitrary request", async () => {
 	)),
 	TE.matchE<string, User, () => void>(
 	    e => T.of(() => {fail(e)}),
-	    o => T.of(() => {assertEquals(o, user)})
+	    o => T.of(() => {assertEquals(o, LUKH)})
 	))()
     
     test()
