@@ -14,10 +14,17 @@ const user: User = {
     name: "lukh"
 }
 
+/**
+ Produce (asynchrounously) a Response from a Request.
+ If everything went ok produces right(Response).
+ In case of failure produces left(string) where string is an error message.
+ Thanks to TaskEither the promise never fails.
+*/
 const handler: (req: Request) => TE.TaskEither<string, Response> =
     req => {
 	return TE.right(new Response(JSON.stringify(user)))
     }
+
 Deno.test("handler can handle an arbitrary request", async () => {
     const req = new Request("https://example.com", {method: "GET"})
     
