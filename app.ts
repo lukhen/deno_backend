@@ -20,7 +20,7 @@ const user: User = {
  In case of failure produces left(string) where string is an error message.
  Thanks to TaskEither the promise never fails.
 */
-const handler: (req: Request) => TE.TaskEither<string, Response> =
+const getUserHandler: (req: Request) => TE.TaskEither<string, Response> =
     req => {
 	return TE.right(new Response(JSON.stringify(user)))
     }
@@ -30,7 +30,7 @@ Deno.test("handler can handle an arbitrary request", async () => {
     
     const test  = await pipe(
 	req,
-	handler,
+	getUserHandler,
 	TE.chain(r => TE.tryCatch(
 	    () => r.json(),
 	    reason => `${reason}`
