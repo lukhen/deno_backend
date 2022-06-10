@@ -50,6 +50,11 @@ Deno.test("single item, user found", async () => {
     assertEquals(user, E.right(LUKH))
 })
 
+Deno.test("multiple items, user found", async () => {
+    const user = await getUserDb({lukh: LUKH, user1: {name: "user1"}, user2: {name: "user2"}})("user1")()
+    assertEquals(user, E.right({name: "user1"}))
+})
+
 /**
  Produce (asynchrounously) a Response from a Request.
  If everything went ok produces right(Response).
