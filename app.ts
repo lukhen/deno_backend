@@ -3,7 +3,9 @@ import { assert, assertEquals, fail } from "https://deno.land/std@0.142.0/testin
 import * as TE from "https://deno.land/x/fp_ts@v2.11.4/TaskEither.ts"
 import {pipe} from "https://deno.land/x/fp_ts@v2.11.4/function.ts"
 import * as T from "https://deno.land/x/fp_ts@v2.11.4/Task.ts"
+import * as E from "https://deno.land/x/fp_ts@v2.11.4/Either.ts"
 import * as O from "https://deno.land/x/fp_ts@v2.11.4/Option.ts"
+import * as R from "https://deno.land/x/fp_ts@v2.11.4/Record.ts"
 import * as TC from "./taskcoproduct4.ts"
 
 //const server = Deno.listen({ port: 8080 })
@@ -22,6 +24,19 @@ const LUKH: User = {
 const getUser: (name: string) => TE.TaskEither<string, User> =
     name => TE.right(LUKH)
     
+
+/**
+!!!
+*/
+const getUserDb: (db: Record<string, User>) => (name: string) => TE.TaskEither<string, User> =
+    db => name => TE.left("no such user")
+
+
+Deno.test("empty", async () => {
+    const user = await getUserDb({})("lukh")()
+    assertEquals(user, E.left("no such user"))
+})
+
 
 /**
  Produce (asynchrounously) a Response from a Request.
