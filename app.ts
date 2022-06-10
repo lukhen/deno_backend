@@ -3,6 +3,8 @@ import { assert, assertEquals, fail } from "https://deno.land/std@0.142.0/testin
 import * as TE from "https://deno.land/x/fp_ts@v2.11.4/TaskEither.ts"
 import {pipe} from "https://deno.land/x/fp_ts@v2.11.4/function.ts"
 import * as T from "https://deno.land/x/fp_ts@v2.11.4/Task.ts"
+import * as O from "https://deno.land/x/fp_ts@v2.11.4/Option.ts"
+import * as TC from "./taskcoproduct4.ts"
 
 //const server = Deno.listen({ port: 8080 })
 
@@ -15,20 +17,21 @@ const LUKH: User = {
 }
 
 /**
+!!!
+*/
+const getUser: (name: string) => TE.TaskEither<string, User> =
+    name => TE.right(LUKH)
+    
+
+/**
  Produce (asynchrounously) a Response from a Request.
  If everything went ok produces right(Response).
  In case of failure produces left(string) where string is an error message.
  Thanks to TaskEither the promise never fails.
-*/
-const getUserHandler: (req: Request) => TE.TaskEither<string, Response> =
-    req => {
-	return TE.right(new Response(JSON.stringify(LUKH)))
-    }
 
-Deno.test("handler can handle an arbitrary request", async () => {
-    const req = new Request("https://example.com", {method: "GET"})
-    
-    const test  = await pipe(
+ @example
+ const req = new Request("https://example.com/users/lukh", {method: "GET"})    
+ const test  = await pipe(
 	req,
 	getUserHandler,
 	TE.chain(r => TE.tryCatch(
@@ -39,6 +42,43 @@ Deno.test("handler can handle an arbitrary request", async () => {
 	    e => T.of(() => {fail(e)}),
 	    o => T.of(() => {assertEquals(o, LUKH)})
 	))()
+ @example
+ const x = 100
+
+*/
+const getUserHandler: (req: Request) => TE.TaskEither<string, Response> =
+    req => {
+	return pipe(
+	    getUser("lukh"),
+	    TE.map(
+		u => new Response(JSON.stringify(u))
+	    )
+	)
+    }
+
+Deno.test("request to fetch the user named lukh", async () => {
+    const req = new Request("https://example.com/users/lukh", {method: "GET"})    
+    const test = await pipe(
+	TC.fromPairOfSums(
+	    pipe(
+		getUserHandler(req),
+		TE.chain(r => TE.tryCatch(
+		    () => r.json() as Promise<User>,
+		    reason => `${reason}`
+		)),
+	    ),
+	    getUser("lukh")
+	),
+	TC.fold(
+	    (_) => T.of(() => {fail("this should not be reached")}),
+	    (_) => T.of(() => {fail("this should not be reached")}),
+	    (_) => T.of(() => {fail("this should not be reached")}),
+	    ([resp_user, fetched_user]) => T.of(() => {
+		assertEquals(resp_user, fetched_user)
+	    })
+	    
+	)
+    )() as () => void
     
     test()
 })
