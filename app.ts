@@ -29,7 +29,10 @@ const getUser: (name: string) => TE.TaskEither<string, User> =
 !!!
 */
 const getUserDb: (db: Record<string, User>) => (name: string) => TE.TaskEither<string, User> =
-    db => name => TE.left("no such user")
+    db => name => {
+	
+	return db[name] ? TE.right(db[name]) : TE.left("no such user")
+    }
 
 
 Deno.test("empty", async () => {
@@ -42,6 +45,10 @@ Deno.test("single item, user not found", async () => {
     assertEquals(user, E.left("no such user"))
 })
 
+Deno.test("single item, user found", async () => {
+    const user = await getUserDb({lukh: LUKH})("lukh")()
+    assertEquals(user, E.right(LUKH))
+})
 
 /**
  Produce (asynchrounously) a Response from a Request.
