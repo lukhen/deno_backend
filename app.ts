@@ -37,6 +37,11 @@ Deno.test("empty", async () => {
     assertEquals(user, E.left("no such user"))
 })
 
+Deno.test("single item, user not found", async () => {
+    const user = await getUserDb({user1: {name: "user1"}})("lukh")()
+    assertEquals(user, E.left("no such user"))
+})
+
 
 /**
  Produce (asynchrounously) a Response from a Request.
