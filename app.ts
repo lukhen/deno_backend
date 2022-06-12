@@ -30,7 +30,14 @@ const getUser: (name: string) => TE.TaskEither<string, User> =
 
 type getUserDbFT = (db: Record<string, User>) => (name: string) => TE.TaskEither<string, User>
 /**
-!!!
+Asynchronously fetch user from database.
+* @example
+* const user = await getUserDb({user0: {name: "user0"}
+*                               user1: {name: "user1"},
+*                               user2: {name: "user2"}}
+* 			    )("user1")()
+* assertEquals(user, E.right({name: "user1"}))
+*
 */
 const getUserDb: getUserDbFT =
     db => name => {	
@@ -54,7 +61,10 @@ Deno.test("single item, user found", async () => {
 })
 
 Deno.test("multiple items, user found", async () => {
-    const user = await getUserDb({lukh: LUKH, user1: {name: "user1"}, user2: {name: "user2"}})("user1")()
+    const user = await getUserDb({lukh: LUKH,
+				  user1: {name: "user1"},
+				  user2: {name: "user2"}}
+				)("user1")()
     assertEquals(user, E.right({name: "user1"}))
 })
 
