@@ -6,6 +6,8 @@ import * as T from "https://deno.land/x/fp_ts@v2.11.4/Task.ts"
 import * as E from "https://deno.land/x/fp_ts@v2.11.4/Either.ts"
 import * as O from "https://deno.land/x/fp_ts@v2.11.4/Option.ts"
 import * as R from "https://deno.land/x/fp_ts@v2.11.4/Record.ts"
+import * as A from "https://deno.land/x/fp_ts@v2.11.4/Array.ts"
+
 import * as TC from "./taskcoproduct4.ts"
 
 //const server = Deno.listen({ port: 8080 })
@@ -123,9 +125,12 @@ Deno.test("request to fetch the user named lukh", async () => {
 const getUserHandler2: (getUser: (name: string) => TE.TaskEither<string, User>) => (req: Request) => TE.TaskEither<string, Response> =
     getUser => request => {
 	return pipe(
-	    getUser("user1"),
-	    TE.map(
-		u => new Response(JSON.stringify(u))
+	    getUserNameFromUrl(request.url),
+	    O.map(getUser),
+	    O.match(
+		    () => TE.left("no user in url"),
+		    u => TE.map(
+			u => new Response(JSON.stringify(u)))(u)
 	    )
 	)
     }
@@ -148,6 +153,47 @@ Deno.test("getUserHandler2, user1 exists", async () => {
 	    ([e1, e2]) => T.of(() => {fail("this should not be reached 1")}),
 	    (_) => T.of(() => {fail("this should not be reached 2")}),
 	    (_) => T.of(() => {fail("this should not be reached 3")}),
+	    ([resp_user, fetched_user]) => T.of(() => {
+		assertEquals(resp_user, fetched_user)
+	    })
+	    
+	)
+    )() as () => void
+    
+    test()
+
+})
+/**
+!!!
+*/
+const getUserNameFromUrl : (url: string) => O.Option<string> =
+    url => A.last(new URL(url).pathname.split("/"))
+    
+Deno.test("getUserHandler2, user2 exists", async () => {
+    const req = new Request("https://example.com/users/user2", {method: "GET"})    
+    const getUser = getUserDb({user2: {name: "some name of user2"}})
+    const test = await pipe(
+	TC.fromPairOfSums(
+	    pipe(
+		getUserHandler2(getUser)(req),
+		TE.chain(r => TE.tryCatch(
+		    () => r.json() as Promise<User>,
+		    reason => `${reason}`
+		)),
+	    ),
+	    pipe(
+		getUserNameFromUrl(req.url),
+		O.map(getUser),
+		O.match(
+		    () => TE.left("no user in url"),
+		    x => x
+		)
+	    )
+	),
+	TC.fold(
+	    ([e1, e2]) => T.of(() => {fail(`${e1}, ${e2}`)}),
+	    ([e, _]) => T.of(() => {fail(`${e} 1`)}),
+	    ([_, e]) => T.of(() => {fail(`${e} 2`)}),
 	    ([resp_user, fetched_user]) => T.of(() => {
 		assertEquals(resp_user, fetched_user)
 	    })
