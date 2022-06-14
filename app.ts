@@ -2,6 +2,7 @@ import {serve} from "https://deno.land/std@0.142.0/http/server.ts";
 import { assert, assertEquals, fail } from "https://deno.land/std@0.142.0/testing/asserts.ts";
 import * as TE from "https://deno.land/x/fp_ts@v2.11.4/TaskEither.ts"
 import {pipe} from "https://deno.land/x/fp_ts@v2.11.4/function.ts"
+import * as String from  "https://deno.land/x/fp_ts@v2.11.4/string.ts"
 import * as T from "https://deno.land/x/fp_ts@v2.11.4/Task.ts"
 import * as E from "https://deno.land/x/fp_ts@v2.11.4/Either.ts"
 import * as O from "https://deno.land/x/fp_ts@v2.11.4/Option.ts"
@@ -207,6 +208,9 @@ const getUserNameFromUrl : (urlString: string) => O.Option<string> =
     urlString => pipe(
 	O.tryCatch(() => new URL(urlString)),
 	O.map(url => url.pathname),
+	O.map(pathname => pathname.match("^/users/.*$")),
+	O.chain(matches => O.fromNullable(matches)),
+	O.map(matches => matches[0]),
 	O.map(pathname => pathname.split("/")),
 	O.chain(A.last)
     )
@@ -216,6 +220,9 @@ Deno.test("empty url string", () => {
 })
 Deno.test("unempty url string, invalid url", () => {
     assertEquals(getUserNameFromUrl("some string, but not url"), O.none)
+})
+Deno.test("valid url, wrong pathname", () => {
+    assertEquals(getUserNameFromUrl("http://valid.url/wrong/pathname"), O.none)
 })
 
 
