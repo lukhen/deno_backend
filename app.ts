@@ -225,6 +225,10 @@ Deno.test("valid url, wrong pathname", () => {
     assertEquals(getUserNameFromUrl("http://valid.url/wrong/pathname"), O.none)
 })
 
+Deno.test("valid url, good pathname", () => {
+    assertEquals(getUserNameFromUrl("http://valid.url/users/username"), O.some("username"))
+})
+
 
 Deno.test("getUserHandler2, user2 exists", async () => {
     const req = new Request("https://example.com/users/user2", {method: "GET"})    
