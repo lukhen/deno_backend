@@ -194,15 +194,12 @@ Deno.test("getUserHandler2, user1 exists", async () => {
 
 })
 /**
- !!!
  If url pathname matches '/users/user_name' produce O.some(user_name).
  Otherwise produce O.none
 
  @example
-* '' -> O.none
-* 'some string, not url' -> O.none
-* 'https://example.com/users/user1' -> O.some("user1")
-* 'https://example.com/wrong/pathname' -> O.none
+* assertEquals(getUserNameFromUrl("http://valid.url/wrong/pathname"), O.none)
+* assertEquals(getUserNameFromUrl("http://valid.url/users/username"), O.some("username"))
 */
 const getUserNameFromUrl : (urlString: string) => O.Option<string> =
     urlString => pipe(
