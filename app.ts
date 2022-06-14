@@ -214,6 +214,9 @@ const getUserNameFromUrl : (urlString: string) => O.Option<string> =
 Deno.test("empty url string", () => {
     assertEquals(getUserNameFromUrl(""), O.none)
 })
+Deno.test("unempty url string, invalid url", () => {
+    assertEquals(getUserNameFromUrl("some string, but not url"), O.none)
+})
 
 
 Deno.test("getUserHandler2, user2 exists", async () => {
