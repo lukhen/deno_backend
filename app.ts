@@ -131,7 +131,26 @@ Deno.test("request to fetch the user named lukh", async () => {
     
     test()
 })
-
+/**
+* Produce (asynchrounously) a Response from a Request.
+* If everything went ok produces right(Response).
+* In case of failure produces left(string) where string is an error message.
+* Thanks to TaskEither the promise never fails.
+*
+ @example
+* const req = new Request("https://example.com/users/user1", {method: "GET"})    
+* const getUser = getUserDb({user1: {name: "user1"}})
+* const user = await pipe(
+*		getUserHandler2(getUser)(req),
+*		TE.chain(r => TE.tryCatch(
+*		    () => r.json() as Promise<User>,
+*		    reason => `${reason}`
+*		)),
+* )()
+* const userNameOrErrorMsg = E.isRight(user) ? user.right.name : user.left
+* assertEquals(userNameOrErrorMsg, "user1")
+* 
+*/
 const getUserHandler2: (getUser: (name: string) => TE.TaskEither<string, User>) => (req: Request) => TE.TaskEither<string, Response> =
     getUser => request => {
 	return pipe(
