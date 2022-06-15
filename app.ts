@@ -77,7 +77,7 @@ Deno.test("multiple items, user not found", async () => {
 * const req = new Request("https://example.com/users/user1", {method: "GET"})    
 * const getUser = getUserDb({user1: {name: "user1"}})
 * const user = await pipe(
-*		getUserHandler2(getUser)(req),
+*		getUserHandler(getUser)(req),
 *		TE.chain(r => TE.tryCatch(
 *		    () => r.json() as Promise<User>,
 *		    reason => `${reason}`
@@ -87,7 +87,7 @@ Deno.test("multiple items, user not found", async () => {
 * assertEquals(userNameOrErrorMsg, "user1")
 * 
 */
-const getUserHandler2: (getUser: (name: string) => TE.TaskEither<string, User>) => (req: Request) => TE.TaskEither<string, Response> =
+const getUserHandler: (getUser: (name: string) => TE.TaskEither<string, User>) => (req: Request) => TE.TaskEither<string, Response> =
     getUser => request => {
 	return pipe(
 	    getUserNameFromUrl(request.url),
@@ -100,13 +100,13 @@ const getUserHandler2: (getUser: (name: string) => TE.TaskEither<string, User>) 
 	)
     }
 
-Deno.test("getUserHandler2, user1 exists", async () => {
+Deno.test("getUserHandler, user1 exists", async () => {
     const req = new Request("https://example.com/users/user1", {method: "GET"})    
     const getUser = getUserDb({user1: {name: "user1"}})
     const test = await pipe(
 	TC.fromPairOfSums(
 	    pipe(
-		getUserHandler2(getUser)(req),
+		getUserHandler(getUser)(req),
 		TE.chain(r => TE.tryCatch(
 		    () => r.json() as Promise<User>,
 		    reason => `${reason}`
@@ -129,13 +129,13 @@ Deno.test("getUserHandler2, user1 exists", async () => {
 
 })
 
-Deno.test("getUserHandler2, user2 exists", async () => {
+Deno.test("getUserHandler, user2 exists", async () => {
     const req = new Request("https://example.com/users/user2", {method: "GET"})    
     const getUser = getUserDb({user2: {name: "some name of user2"}})
     const test = await pipe(
 	TC.fromPairOfSums(
 	    pipe(
-		getUserHandler2(getUser)(req),
+		getUserHandler(getUser)(req),
 		TE.chain(r => TE.tryCatch(
 		    () => r.json() as Promise<User>,
 		    reason => `${reason}`
@@ -165,13 +165,13 @@ Deno.test("getUserHandler2, user2 exists", async () => {
 
 })
 
-Deno.test("getUserHandler2, user2 doesn't exist", async () => {
+Deno.test("getUserHandler, user2 doesn't exist", async () => {
     const req = new Request("https://example.com/users/user2", {method: "GET"})    
     const getUser = getUserDb({user1: {name: "user1_name"}})
     const test = await pipe(
 	TC.fromPairOfSums(
 	    pipe(
-		getUserHandler2(getUser)(req),
+		getUserHandler(getUser)(req),
 		TE.chain(r => TE.tryCatch(
 		    () => r.json() as Promise<User>,
 		    reason => `${reason}`
