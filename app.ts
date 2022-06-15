@@ -193,39 +193,6 @@ Deno.test("getUserHandler2, user1 exists", async () => {
     test()
 
 })
-/**
- If url pathname matches '/users/user_name' produce O.some(user_name).
- Otherwise produce O.none
-
- @example
-* assertEquals(getUserNameFromUrl("http://valid.url/wrong/pathname"), O.none)
-* assertEquals(getUserNameFromUrl("http://valid.url/users/username"), O.some("username"))
-*/
-const getUserNameFromUrl : (urlString: string) => O.Option<string> =
-    urlString => pipe(
-	O.tryCatch(() => new URL(urlString)),
-	O.map(url => url.pathname),
-	O.map(pathname => pathname.match("^/users/.*$")),
-	O.chain(matches => O.fromNullable(matches)),
-	O.map(matches => matches[0]),
-	O.map(pathname => pathname.split("/")),
-	O.chain(A.last)
-    )
-
-Deno.test("empty url string", () => {
-    assertEquals(getUserNameFromUrl(""), O.none)
-})
-Deno.test("unempty url string, invalid url", () => {
-    assertEquals(getUserNameFromUrl("some string, but not url"), O.none)
-})
-Deno.test("valid url, wrong pathname", () => {
-    assertEquals(getUserNameFromUrl("http://valid.url/wrong/pathname"), O.none)
-})
-
-Deno.test("valid url, good pathname", () => {
-    assertEquals(getUserNameFromUrl("http://valid.url/users/username"), O.some("username"))
-})
-
 
 Deno.test("getUserHandler2, user2 exists", async () => {
     const req = new Request("https://example.com/users/user2", {method: "GET"})    
@@ -263,3 +230,35 @@ Deno.test("getUserHandler2, user2 exists", async () => {
 
 })
 
+/**
+ If url pathname matches '/users/user_name' produce O.some(user_name).
+ Otherwise produce O.none
+
+ @example
+* assertEquals(getUserNameFromUrl("http://valid.url/wrong/pathname"), O.none)
+* assertEquals(getUserNameFromUrl("http://valid.url/users/username"), O.some("username"))
+*/
+const getUserNameFromUrl : (urlString: string) => O.Option<string> =
+    urlString => pipe(
+	O.tryCatch(() => new URL(urlString)),
+	O.map(url => url.pathname),
+	O.map(pathname => pathname.match("^/users/.*$")),
+	O.chain(matches => O.fromNullable(matches)),
+	O.map(matches => matches[0]),
+	O.map(pathname => pathname.split("/")),
+	O.chain(A.last)
+    )
+
+Deno.test("empty url string", () => {
+    assertEquals(getUserNameFromUrl(""), O.none)
+})
+Deno.test("unempty url string, invalid url", () => {
+    assertEquals(getUserNameFromUrl("some string, but not url"), O.none)
+})
+Deno.test("valid url, wrong pathname", () => {
+    assertEquals(getUserNameFromUrl("http://valid.url/wrong/pathname"), O.none)
+})
+
+Deno.test("valid url, good pathname", () => {
+    assertEquals(getUserNameFromUrl("http://valid.url/users/username"), O.some("username"))
+})
