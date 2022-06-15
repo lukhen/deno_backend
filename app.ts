@@ -230,6 +230,46 @@ Deno.test("getUserHandler2, user2 exists", async () => {
 
 })
 
+Deno.test("getUserHandler2, user2 doesn't exist", async () => {
+    const req = new Request("https://example.com/users/user2", {method: "GET"})    
+    const getUser = getUserDb({user1: {name: "user1_name"}})
+    const test = await pipe(
+	TC.fromPairOfSums(
+	    pipe(
+		getUserHandler2(getUser)(req),
+		TE.chain(r => TE.tryCatch(
+		    () => r.json() as Promise<User>,
+		    reason => `${reason}`
+		)),
+	    ),
+	    pipe(
+		getUserNameFromUrl(req.url),
+		O.map(getUser),
+		O.match(
+		    () => TE.left("no user in url"),
+		    x => x
+		)
+	    )
+	),
+	TC.fold(
+	    ([e1, e2]) => T.of(() => {
+		assertEquals(e1, e2)
+	    }),
+	    ([e, _]) => T.of(() => {fail(`${e} 1`)}),
+	    ([_, e]) => T.of(() => {fail(`${e} 2`)}),
+	    ([resp_user, fetched_user]) => T.of(() => {
+		fail(`${resp_user}, ${fetched_user}`)
+	    })
+	    
+	)
+    )() as () => void
+    
+    test()
+
+})
+
+
+
 /**
  If url pathname matches '/users/user_name' produce O.some(user_name).
  Otherwise produce O.none
