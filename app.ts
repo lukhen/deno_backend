@@ -3,7 +3,6 @@ import {getUserHandler, getUserDb} from "./functions.ts"
 import * as TE from "https://deno.land/x/fp_ts@v2.11.4/TaskEither.ts"
 import * as T from "https://deno.land/x/fp_ts@v2.11.4/Task.ts"
 import {pipe} from "https://deno.land/x/fp_ts@v2.11.4/function.ts"
-
 type HandlerTE = (request: Request) => TE.TaskEither<string, Response>
 
 
@@ -16,7 +15,7 @@ const teToPromise: (handlerTE: HandlerTE) => Handler =
 	handlerTE,
 	TE.matchE<string, Response, Response>(
 	    e => T.of(new Response(e)),
-	    x => T.of(x)
+	    T.of
 	)
     )()
 
