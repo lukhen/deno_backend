@@ -4,6 +4,7 @@ import {pipe} from "https://deno.land/x/fp_ts@v2.11.4/function.ts"
 import * as O from "https://deno.land/x/fp_ts@v2.11.4/Option.ts"
 import { assertEquals, fail } from "https://deno.land/std@0.142.0/testing/asserts.ts";
 import * as T from "https://deno.land/x/fp_ts@v2.11.4/Task.ts"
+import {getClientsNameFromUrl} from "./getClientsNameFromUrl.test.ts"
 
 interface Client {
     name: string,
@@ -21,11 +22,6 @@ type findClientsHandlerFT = (findClients: findClientsFT) => (request: Request) =
 const findClientsHandler: findClientsHandlerFT =
     findClients => request => TE.right(new Response(JSON.stringify([])))
 
-/**
-!!!
-*/
-const getClientsNameFromUrl: (url: string) => O.Option<string> =
-    url => O.some("some_name")
 
 
 Deno.test("empty", async () => {
@@ -61,4 +57,6 @@ Deno.test("empty", async () => {
     )() as () => void
     x()
 })
-    
+
+
+
