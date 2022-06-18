@@ -13,13 +13,10 @@ interface Client {
     phone: string
 }
 
-type findClientsFT = (name: string) => TE.TaskEither<string, Client[]>
-
-type findClientsHandlerFT = (findClients: findClientsFT) => (request: Request) => TE.TaskEither<string, Response>
 /**
 !!!
 */
-const findClientsHandler: findClientsHandlerFT =
+const findClientsHandler: (findClients: (name: string) => TE.TaskEither<string, Client[]>) => (request: Request) => TE.TaskEither<string, Response> =
     findClients => request => pipe(
 	getClientsNameFromUrl(request.url),
 	O.map(findClients),
@@ -34,7 +31,7 @@ const findClientsHandler: findClientsHandlerFT =
 Deno.test("empty", async () => {
     const url = "https://example.com/clients/client1"
     const req = new Request(url, {method: "GET"})
-    const findClientsEmpty: findClientsFT =
+    const findClientsEmpty: (name: string) => TE.TaskEither<string, Client[]> =
 	name => TE.right([])
 
     const x = await pipe(
@@ -69,7 +66,7 @@ Deno.test("empty", async () => {
 Deno.test("one", async () => {
     const url = "https://example.com/clients/smith"
     const req = new Request(url, {method: "GET"})
-    const findOneClient: findClientsFT =
+    const findOneClient: (name: string) => TE.TaskEither<string, Client[]> =
 	name => TE.right([{name: "John Smith", address: "Polna 1", email: "john@smith.js", phone: "112233"}])
 
     const x = await pipe(
@@ -103,7 +100,7 @@ Deno.test("one", async () => {
 Deno.test("many", async () => {
     const url = "https://example.com/clients/smith"
     const req = new Request(url, {method: "GET"})
-    const findOneClient: findClientsFT =
+    const findOneClient: (name: string) => TE.TaskEither<string, Client[]> =
 	name => TE.right([
 	    {name: "John Smith", address: "Polna 1", email: "john@smith.js", phone: "112233"},
 	    {name: "Agent Smith", address: "Matrix", email: "agent@smith.js", phone: "554433"}
