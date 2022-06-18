@@ -5,26 +5,7 @@ import * as O from "https://deno.land/x/fp_ts@v2.11.4/Option.ts"
 import { assertEquals, fail } from "https://deno.land/std@0.142.0/testing/asserts.ts";
 import * as T from "https://deno.land/x/fp_ts@v2.11.4/Task.ts"
 import {getClientsNameFromUrl} from "./getClientsNameFromUrl.test.ts"
-
-interface Client {
-    name: string,
-    address: string,
-    email: string,
-    phone: string
-}
-
-/**
-!!!
-*/
-const findClientsHandler: (findClients: (name: string) => TE.TaskEither<string, Client[]>) => (request: Request) => TE.TaskEither<string, Response> =
-    findClients => request => pipe(
-	getClientsNameFromUrl(request.url),
-	O.map(findClients),
-	O.match(
-	    () => TE.left("no client's name in url"),
-	    TE.map(x => new Response(JSON.stringify(x)))
-	)
-    )
+import {findClientsHandler, Client} from "./functions.ts"
 
 
 

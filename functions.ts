@@ -2,9 +2,17 @@ import * as TE from "https://deno.land/x/fp_ts@v2.11.4/TaskEither.ts"
 import {pipe} from "https://deno.land/x/fp_ts@v2.11.4/function.ts"
 import * as O from "https://deno.land/x/fp_ts@v2.11.4/Option.ts"
 import * as A from "https://deno.land/x/fp_ts@v2.11.4/Array.ts"
+import {getClientsNameFromUrl} from "./getClientsNameFromUrl.test.ts"
 
 export interface User {
     name: string
+}
+
+export interface Client {
+    name: string,
+    address: string,
+    email: string,
+    phone: string
 }
 
 /**
@@ -74,4 +82,19 @@ export const getUserNameFromUrl : (urlString: string) => O.Option<string> =
 	O.map(matches => matches[0]),
 	O.map(pathname => pathname.split("/")),
 	O.chain(A.last)
+    )
+
+
+
+/**
+!!!
+*/
+export const findClientsHandler: (findClients: (name: string) => TE.TaskEither<string, Client[]>) => (request: Request) => TE.TaskEither<string, Response> =
+    findClients => request => pipe(
+	getClientsNameFromUrl(request.url),
+	O.map(findClients),
+	O.match(
+	    () => TE.left("no client's name in url"),
+	    TE.map(x => new Response(JSON.stringify(x)))
+	)
     )
