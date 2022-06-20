@@ -5,14 +5,14 @@ import * as O from "https://deno.land/x/fp_ts@v2.11.4/Option.ts"
 import { assertEquals, fail } from "https://deno.land/std@0.142.0/testing/asserts.ts";
 import * as T from "https://deno.land/x/fp_ts@v2.11.4/Task.ts"
 import {getClientsNameFromUrl} from "./getClientsNameFromUrl.test.ts"
-import {findClientsHandler, Client} from "./functions.ts"
+import {findClientsHandler, Customer} from "./functions.ts"
 
 
 
 Deno.test("empty", async () => {
     const url = "https://example.com/clients/client1"
     const req = new Request(url, {method: "GET"})
-    const findClientsEmpty: (name: string) => TE.TaskEither<string, Client[]> =
+    const findClientsEmpty: (name: string) => TE.TaskEither<string, Customer[]> =
 	name => TE.right([])
 
     const x = await pipe(
@@ -20,7 +20,7 @@ Deno.test("empty", async () => {
 	    pipe(
 		findClientsHandler(findClientsEmpty)(req),
 		TE.chain(r => TE.tryCatch(
-		    () => r.json() as Promise<Client[]>,
+		    () => r.json() as Promise<Customer[]>,
 		    reason => `${reason}`
 		))
 	    ),
@@ -47,7 +47,7 @@ Deno.test("empty", async () => {
 Deno.test("one", async () => {
     const url = "https://example.com/clients/smith"
     const req = new Request(url, {method: "GET"})
-    const findOneClient: (name: string) => TE.TaskEither<string, Client[]> =
+    const findOneClient: (name: string) => TE.TaskEither<string, Customer[]> =
 	name => TE.right([{name: "John Smith", address: "Polna 1", email: "john@smith.js", phone: "112233"}])
 
     const x = await pipe(
@@ -55,7 +55,7 @@ Deno.test("one", async () => {
 	    pipe(
 		findClientsHandler(findOneClient)(req),
 		TE.chain(r => TE.tryCatch(
-		    () => r.json() as Promise<Client[]>,
+		    () => r.json() as Promise<Customer[]>,
 		    reason => `${reason}`
 		))
 	    ),
@@ -81,7 +81,7 @@ Deno.test("one", async () => {
 Deno.test("many", async () => {
     const url = "https://example.com/clients/smith"
     const req = new Request(url, {method: "GET"})
-    const findOneClient: (name: string) => TE.TaskEither<string, Client[]> =
+    const findOneClient: (name: string) => TE.TaskEither<string, Customer[]> =
 	name => TE.right([
 	    {name: "John Smith", address: "Polna 1", email: "john@smith.js", phone: "112233"},
 	    {name: "Agent Smith", address: "Matrix", email: "agent@smith.js", phone: "554433"}
@@ -92,7 +92,7 @@ Deno.test("many", async () => {
 	    pipe(
 		findClientsHandler(findOneClient)(req),
 		TE.chain(r => TE.tryCatch(
-		    () => r.json() as Promise<Client[]>,
+		    () => r.json() as Promise<Customer[]>,
 		    reason => `${reason}`
 		))
 	    ),

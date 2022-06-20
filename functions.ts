@@ -8,7 +8,7 @@ export interface User {
     name: string
 }
 
-export interface Client {
+export interface Customer {
     name: string,
     address: string,
     email: string,
@@ -89,7 +89,7 @@ export const getUserNameFromUrl : (urlString: string) => O.Option<string> =
 /**
 !!!
 */
-export const findClientsHandler: (findClients: (name: string) => TE.TaskEither<string, Client[]>) => (request: Request) => TE.TaskEither<string, Response> =
+export const findClientsHandler: (findClients: (name: string) => TE.TaskEither<string, Customer[]>) => (request: Request) => TE.TaskEither<string, Response> =
     findClients => request => pipe(
 	getClientsNameFromUrl(request.url),
 	O.map(findClients),
