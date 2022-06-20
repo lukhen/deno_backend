@@ -1,12 +1,11 @@
 import * as TE from "https://deno.land/x/fp_ts@v2.11.4/TaskEither.ts"
-import * as TC4 from "./taskcoproduct4.ts"
+import * as TC4 from "https://raw.githubusercontent.com/lukhen/denoutils/main/taskcoproduct4.ts"
 import {pipe} from "https://deno.land/x/fp_ts@v2.11.4/function.ts"
 import * as O from "https://deno.land/x/fp_ts@v2.11.4/Option.ts"
 import { assertEquals, fail } from "https://deno.land/std@0.142.0/testing/asserts.ts";
 import * as T from "https://deno.land/x/fp_ts@v2.11.4/Task.ts"
 import {getClientsNameFromUrl} from "./getClientsNameFromUrl.test.ts"
 import {findClientsHandler, Customer} from "./functions.ts"
-
 
 
 Deno.test("empty", async () => {

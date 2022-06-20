@@ -2,7 +2,7 @@ import { assertEquals, fail } from "https://deno.land/std@0.142.0/testing/assert
 import {getUserDb, getUserHandler, getUserNameFromUrl, User} from "./functions.ts"
 import * as E from "https://deno.land/x/fp_ts@v2.11.4/Either.ts"
 import * as TE from "https://deno.land/x/fp_ts@v2.11.4/TaskEither.ts"
-import * as TC from "./taskcoproduct4.ts"
+import * as TC4 from "https://raw.githubusercontent.com/lukhen/denoutils/main/taskcoproduct4.ts"
 import {pipe} from "https://deno.land/x/fp_ts@v2.11.4/function.ts"
 import * as T from "https://deno.land/x/fp_ts@v2.11.4/Task.ts"
 import * as O from "https://deno.land/x/fp_ts@v2.11.4/Option.ts"
@@ -44,7 +44,7 @@ Deno.test("getUserHandler, user1 exists", async () => {
     const req = new Request("https://example.com/users/user1", {method: "GET"})    
     const getUser = getUserDb({user1: {name: "user1"}})
     const test = await pipe(
-	TC.fromPairOfSums(
+	TC4.fromPairOfSums(
 	    pipe(
 		getUserHandler(getUser)(req),
 		TE.chain(r => TE.tryCatch(
@@ -54,7 +54,7 @@ Deno.test("getUserHandler, user1 exists", async () => {
 	    ),
 	    getUser("user1")
 	),
-	TC.fold(
+	TC4.fold(
 	    ([e1, e2]) => T.of(() => {fail("this should not be reached 1")}),
 	    (_) => T.of(() => {fail("this should not be reached 2")}),
 	    (_) => T.of(() => {fail("this should not be reached 3")}),
@@ -73,7 +73,7 @@ Deno.test("getUserHandler, user2 exists", async () => {
     const req = new Request("https://example.com/users/user2", {method: "GET"})    
     const getUser = getUserDb({user2: {name: "some name of user2"}})
     const test = await pipe(
-	TC.fromPairOfSums(
+	TC4.fromPairOfSums(
 	    pipe(
 		getUserHandler(getUser)(req),
 		TE.chain(r => TE.tryCatch(
@@ -90,7 +90,7 @@ Deno.test("getUserHandler, user2 exists", async () => {
 		)
 	    )
 	),
-	TC.fold(
+	TC4.fold(
 	    ([e1, e2]) => T.of(() => {fail(`${e1}, ${e2}`)}),
 	    ([e, _]) => T.of(() => {fail(`${e} 1`)}),
 	    ([_, e]) => T.of(() => {fail(`${e} 2`)}),
@@ -109,7 +109,7 @@ Deno.test("getUserHandler, user2 doesn't exist", async () => {
     const req = new Request("https://example.com/users/user2", {method: "GET"})    
     const getUser = getUserDb({user1: {name: "user1_name"}})
     const test = await pipe(
-	TC.fromPairOfSums(
+	TC4.fromPairOfSums(
 	    pipe(
 		getUserHandler(getUser)(req),
 		TE.chain(r => TE.tryCatch(
@@ -126,7 +126,7 @@ Deno.test("getUserHandler, user2 doesn't exist", async () => {
 		)
 	    )
 	),
-	TC.fold(
+	TC4.fold(
 	    ([e1, e2]) => T.of(() => {
 		assertEquals(e1, e2)
 	    }),
